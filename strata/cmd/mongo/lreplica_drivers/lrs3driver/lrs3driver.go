@@ -27,10 +27,12 @@ type AWSOptions struct {
 
 // ReplicaOptions are used for commands like backup and restore
 type ReplicaOptions struct {
-	MaxBackgroundCopies int    `long:"max-background-copies" default:"16" description:"Backup and restore actions will use up to this many goroutines to copy files"`
-	Port                int    `long:"port" default:"27017" description:"Backup should look for a mongod instance that is listening on this port"`
-	Username            string `long:"username" description:"If auth is configured, specify the username with admin privileges here"`
-	Password            string `long:"password" description:"Password for the specified user."`
+	MaxBackgroundCopies         int    `long:"max-background-copies" default:"16" description:"Backup and restore actions will use up to this many goroutines to copy files"`
+	Port                        int    `long:"port" default:"27017" description:"Backup should look for a mongod instance that is listening on this port"`
+	SSL                         bool   `long:"ssl" description:"Backup and restore should use SSL for authentication with mongod instance"`
+	SSLAllowInvalidCertificates bool   `long:"sslAllowInvalidCertificates" description:"Allow invalid SSL certificates"`
+	Username                    string `long:"username" description:"If auth is configured, specify the username with admin privileges here"`
+	Password                    string `long:"password" description:"Password for the specified user."`
 }
 
 // Options define the common options needed by this strata command
@@ -73,6 +75,8 @@ func (factory DriverFactory) Driver() (*strata.Driver, error) {
 		strconv.Itoa(options.Replica.Port),
 		options.Replica.Username,
 		options.Replica.Password,
+		options.Replica.SSL,
+		options.Replica.SSLAllowInvalidCertificates,
 	)
 	if err != nil {
 		return nil, err

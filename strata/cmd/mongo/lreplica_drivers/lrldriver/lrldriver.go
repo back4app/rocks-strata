@@ -49,6 +49,8 @@ func (factory DriverFactory) Driver() (*strata.Driver, error) {
 		strconv.Itoa(options.Replica.Port),
 		options.Replica.Username,
 		options.Replica.Password,
+		options.Replica.SSL,
+		options.Replica.SSLAllowInvalidCertificates,
 	)
 	if err != nil {
 		return nil, err
