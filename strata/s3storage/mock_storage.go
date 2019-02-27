@@ -50,5 +50,5 @@ func NewMockS3(t *testing.T) *MockS3 {
 
 // NewStorageWithMockS3 constructs an S3Storage that uses MockS3
 func NewStorageWithMockS3(s *MockS3) (*S3Storage, error) {
-	return NewS3Storage(s.region, s.auth, "testbucket", "test", s3.Private)
+	return NewS3Storage(s.region, s.auth, "testbucket", "test", s3.Private, s3.StandardStorage)
 }

@@ -23,6 +23,7 @@ type AWSOptions struct {
 	BucketName   string `short:"b" long:"bucket" description:"Name of S3 bucket used to store the backups" required:"true"`
 	BucketPrefix string `short:"p" long:"bucket-prefix" description:"Prefix used when storing and retrieving files. Optional" optional:"true"`
 	BucketACL    string `short:"a" long:"bucket-acl" description:"ACL is one of private, public-read, public-read-write, authenticated-read, bucket-owner-read, or bucket-owner-full-control" default:"private"`
+	StorageClass string `short:"s" long:"storage-class" description:"S3 storage class to store the backups. Optional"`
 }
 
 // ReplicaOptions are used for commands like backup and restore
@@ -66,7 +67,8 @@ func (factory DriverFactory) Driver() (*strata.Driver, error) {
 		aws.Auth{AccessKey: accessKey, SecretKey: secretKey},
 		options.AWS.BucketName,
 		options.AWS.BucketPrefix,
-		s3.ACL(options.AWS.BucketACL))
+		s3.ACL(options.AWS.BucketACL),
+		s3.StorageClass(options.AWS.StorageClass))
 	if err != nil {
 		return nil, err
 	}

@@ -22,11 +22,12 @@ import (
 
 // S3Storage implements the strata.Storage interface using S3 as its storage backing
 type S3Storage struct {
-	s3     *s3.S3
-	bucket *s3.Bucket
-	region aws.Region
-	auth   aws.Auth
-	prefix string
+	s3           *s3.S3
+	bucket       *s3.Bucket
+	region       aws.Region
+	auth         aws.Auth
+	prefix       string
+	storageClass s3.StorageClass
 }
 
 func (s *S3Storage) addPrefix(path string) string {
@@ -38,7 +39,7 @@ func (s *S3Storage) removePrefix(path string) string {
 }
 
 // NewS3Storage initializes the S3Storage with required AWS arguments
-func NewS3Storage(region aws.Region, auth aws.Auth, bucketName string, prefix string, bucketACL s3.ACL) (*S3Storage, error) {
+func NewS3Storage(region aws.Region, auth aws.Auth, bucketName string, prefix string, bucketACL s3.ACL, storageClass s3.StorageClass) (*S3Storage, error) {
 	s3obj := s3.New(auth, region)
 	bucket := s3obj.Bucket(bucketName)
 
@@ -57,11 +58,12 @@ func NewS3Storage(region aws.Region, auth aws.Auth, bucketName string, prefix st
 		}
 	}
 	return &S3Storage{
-		s3:     s3obj,
-		bucket: bucket,
-		region: region,
-		auth:   auth,
-		prefix: prefix,
+		s3:           s3obj,
+		bucket:       bucket,
+		region:       region,
+		auth:         auth,
+		prefix:       prefix,
+		storageClass: storageClass,
 	}, nil
 }
 
@@ -96,8 +98,11 @@ func (s *S3Storage) Get(path string) (io.ReadCloser, error) {
 func (s *S3Storage) Put(path string, data []byte) error {
 	checksum := md5.Sum(data)
 	path = s.addPrefix(path)
-	err := s.bucket.Put(path, data, "application/octet-stream", s3.Private,
-		s3.Options{ContentMD5: base64.StdEncoding.EncodeToString(checksum[:])})
+
+	err := s.bucket.Put(path, data, "application/octet-stream", s3.Private, s3.Options{
+		ContentMD5: base64.StdEncoding.EncodeToString(checksum[:]),
+		StorageClass: s.storageClass,
+	})
 	return err
 }
 
